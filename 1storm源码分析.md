@@ -569,39 +569,104 @@ supervisor数据结构
 
 ## 9Worker
 
+## worker-data 数据
 
 ```java
+(defn worker-data [conf mq-context storm-id assignment-id port worker-id]
+  (let [cluster-state (cluster/mk-distributed-cluster-state conf)
+        storm-cluster-state (cluster/mk-storm-cluster-state cluster-state)
+        storm-conf (read-supervisor-storm-conf conf storm-id)
+        executors (set (read-worker-executors storm-conf storm-cluster-state storm-id assignment-id port))
+        transfer-queue (disruptor/disruptor-queue (storm-conf TOPOLOGY-TRANSFER-BUFFER-SIZE)
+                                                  :wait-strategy (storm-conf TOPOLOGY-DISRUPTOR-WAIT-STRATEGY))
+        executor-receive-queue-map (mk-receive-queue-map storm-conf executors)
+        
+        receive-queue-map (->> executor-receive-queue-map
+                               (mapcat (fn [[e queue]] (for [t (executor-id->tasks e)] [t queue])))
+                               (into {}))
 
+        topology (read-supervisor-topology conf storm-id)]
+    (recursive-map
+      :conf conf
+      :mq-context (if mq-context
+                      mq-context
+                      (TransportFactory/makeContext storm-conf))
+      :storm-id storm-id
+      :assignment-id assignment-id
+      :port port
+      :worker-id worker-id
+      :cluster-state cluster-state
+      :storm-cluster-state storm-cluster-state
+      :storm-active-atom (atom false)
+      :executors executors
+      :task-ids (->> receive-queue-map keys (map int) sort)
+      :storm-conf storm-conf
+      :topology topology
+      :system-topology (system-topology! storm-conf topology)
+      :heartbeat-timer (mk-halting-timer)
+      :refresh-connections-timer (mk-halting-timer)
+      :refresh-active-timer (mk-halting-timer)
+      :executor-heartbeat-timer (mk-halting-timer)
+      :user-timer (mk-halting-timer)
+      :task->component (HashMap. (storm-task-info topology storm-conf)) ; for optimized access when used in tasks later on
+      :component->stream->fields (component->stream->fields (:system-topology <>))
+      :component->sorted-tasks (->> (:task->component <>) reverse-map (map-val sort))
+      :endpoint-socket-lock (mk-rw-lock)
+      :cached-node+port->socket (atom {})
+      :cached-task->node+port (atom {})
+      :transfer-queue transfer-queue
+      :executor-receive-queue-map executor-receive-queue-map
+      :short-executor-receive-queue-map (map-key first executor-receive-queue-map)
+      :task->short-executor (->> executors
+                                 (mapcat (fn [e] (for [t (executor-id->tasks e)] [t (first e)])))
+                                 (into {})
+                                 (HashMap.))
+      :suicide-fn (mk-suicide-fn conf)
+      :uptime (uptime-computer)
+      :default-shared-resources (mk-default-resources <>)
+      :user-shared-resources (mk-user-resources <>)
+      :transfer-local-fn (mk-transfer-local-fn <>)
+      :transfer-fn (mk-transfer-fn <>)
+      )))
 ```
 
-```java
 
-```
-
-```java
-
-```
-
-
-```java
-
-```
-
-```java
-
-```
-
-```java
-
-```
-
-
-```java
-
-```
 
 
 ## 10Executor
+
+
+```java
+
+```
+
+```java
+
+```
+
+
+```java
+
+```
+
+```java
+
+```
+
+```java
+
+```
+
+不说了,我和涛哥脑袋瓦特了.
+
+涛哥写c的编译出现问题.
+我用了和HashMap最后发现不应该用map.
+
+
+
+```java
+
+```
 
 ## 11Task
 
