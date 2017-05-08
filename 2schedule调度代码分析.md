@@ -123,6 +123,13 @@ java.lang.Object
 org.apache.storm.scheduler.Cluster
 
 
+得到任务分配方案
+
+| 类型 | 字段 |
+| ---- | ---- |
+Map<String,SchedulerAssignment> | getAssignments()
+
+Get all the assignments.
 
 
 ## 其他
