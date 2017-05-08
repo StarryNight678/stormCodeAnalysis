@@ -136,18 +136,54 @@ Get all the assignments.
 
 
 ```java
+ List<WorkerSlot> lws=new ArrayList<>();
+ lws=cluster.getAssignableSlots();
+ for(int i=0;i<lws.size();i++){
+     System.out.println("----"+lws.get(i).getNodeId() + "  "+lws.get(i).getPort() );
+ }
+```java
+
+
+结果
+
+```java
+MyJasonScheduler: begin scheduling
+----138efdd0-6fe2-435c-b0c7-78c2e3820682  6800
+----138efdd0-6fe2-435c-b0c7-78c2e3820682  6801
+----138efdd0-6fe2-435c-b0c7-78c2e3820682  6802
+----138efdd0-6fe2-435c-b0c7-78c2e3820682  6803
+```
+
+
+## 直接进行分配cluster.assign
+
+```java
+// 选取节点上第一个slot,进行分配
+cluster.assign(availableSlots.get(0), topology.getId(), executors);
+
+//获取任务分配方案
+Map<String,SchedulerAssignment> getAssignments()
+Get all the assignments.
+
+String 是拓扑的id 例如:getId:word-count-1-1494232550
+
+
+//设置新的任务分配
+void    setAssignments(Map<String,SchedulerAssignment> newAssignments)
+set assignments for cluster
 
 ```
 
 
-
 ```java
+Map<ExecutorDetails,String> getExecutorToComponent() 
 
-```
-
-
-```java
-
+String  ExecutorDetails
+sentence-spout  [4,4]
+report-bolt  [3,3]
+count-bolt  [2,2]
+__acker  [1,1]
+split-bolt  [5,5]
 ```
 
 
