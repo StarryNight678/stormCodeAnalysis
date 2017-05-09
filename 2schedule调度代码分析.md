@@ -187,11 +187,102 @@ split-bolt  [5,5]
 ```
 
 
+- 判断使用经过调度
+
+```java
+cluster.needsScheduling(t)
+```
+
+
+ - 获得conf内容
+
+`String user = (String)td.getConf().get(Config.TOPOLOGY_SUBMITTER_USER);`
+
+```java
+  for (TopologyDetails td: topologies.getTopologies()) {
+    String user = (String)td.getConf().get(Config.TOPOLOGY_SUBMITTER_USER);
+    LOG.debug("Found top {} run by user {}",td.getId(), user);
+    NodePool pool = userPools.get(user);
+    if (pool == null || !pool.canAdd(td)) {
+      pool = defaultPool;
+    }
+    pool.addTopology(td);
+  }
+```
+
+
+```java
+
+Map<String,List<ExecutorDetails>>   getNeedsSchedulingComponentToExecutors(TopologyDetails topology) 
+
+Map<String, List<ExecutorDetails>> componentToExecutors = 
+cluster.getNeedsSchedulingComponentToExecutors(topology);
+
+```
+
+
+
+```java
+Class WorkerSlot
+
+
+Constructors 
+Constructor and Description
+WorkerSlot(String nodeId, Number port) 
+WorkerSlot(String nodeId, Number port, double memOnHeap, double memOffHeap, double cpu) 
+
+boolean equals(Object o) 
+double  getAllocatedCpu() 
+double  getAllocatedMemOffHeap() 
+double  getAllocatedMemOnHeap() 
+String  getId() 
+String  getNodeId() 
+int getPort() 
+int hashCode() 
+String  toString() 
+```
+
+```java
+
+```
+
 ```java
 
 ```
 
 
+```java
+
+```
+
+```java
+
+```
+
+```java
+
+```
+
+```java
+
+```
+
+```java
+
+```
+
+```java
+
+```
+
+
+```java
+
+```
+
+```java
+
+```
 
 ```java
 
