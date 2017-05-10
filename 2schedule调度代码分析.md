@@ -242,8 +242,20 @@ int hashCode()
 String  toString() 
 ```
 
-```java
+## clojure调度
 
+```java
+(defn schedule-topologies-evenly [^Topologies topologies ^Cluster cluster]
+  (let [needs-scheduling-topologies (.needsSchedulingTopologies cluster topologies)]
+    (doseq [^TopologyDetails topology needs-scheduling-topologies
+            :let [topology-id (.getId topology)
+                  new-assignment (schedule-topology topology cluster)
+                  node+port->executors (reverse-map new-assignment)]]
+      (doseq [[node+port executors] node+port->executors
+              :let [^WorkerSlot slot (WorkerSlot. (first node+port) (last node+port))
+                    executors (for [[start-task end-task] executors]
+                                (ExecutorDetails. start-task end-task))]]
+        (.assign cluster slot topology-id executors)))))
 ```
 
 ```java
